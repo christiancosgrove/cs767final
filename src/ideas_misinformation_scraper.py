@@ -28,19 +28,27 @@ class IdeasMisinformationScraper(Scraper):
                     continue
                 if d.name == 'p' and not any(c in string.punctuation for c in d.get_text()):
                     key = d.get_text()
+                    # print('========>', key)
+                    # print()
                 elif d.name == 'ol':
                     next_node = d
                     while next_node is not None:
+                        # print(next_node)
                         if isinstance(next_node, Tag):
+                            if next_node.name == 'p' and not any(c in string.punctuation for c in next_node.get_text()):
+                                key = next_node.get_text()
                             for li in next_node.find_all('li'):
                                 if 'Stories relating' in li.get_text() or 'Stories describing' in li.get_text():
                                     # not misinformation bullet
                                     continue
                                 data.append((last_updated, key, li.get_text()))
+                            # print()
+                            # print()
                         next_node = next_node.nextSibling
             key = ''
 
         df = pd.DataFrame(data, columns=['last_updated', 'topic', 'story'])
+        df = df.drop_duplicates()
         latest_df = df[df.last_updated == 'March 27, 2020']
         df.to_csv(os.path.join(self._path, self._filename), index=False)
         latest_df.to_csv(os.path.join(
