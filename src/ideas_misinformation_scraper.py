@@ -32,9 +32,6 @@ class IdeasMisinformationScraper(Scraper):
                     next_node = d
                     while next_node is not None:
                         if isinstance(next_node, Tag):
-                            # print(key, next_node)
-                            # print()
-                            # print([tag.name for tag in next_node.find_all()])
                             for li in next_node.find_all('li'):
                                 if 'Stories relating' in li.get_text() or 'Stories describing' in li.get_text():
                                     # not misinformation bullet
@@ -44,7 +41,10 @@ class IdeasMisinformationScraper(Scraper):
             key = ''
 
         df = pd.DataFrame(data, columns=['last_updated', 'topic', 'story'])
+        latest_df = df[df.last_updated == 'March 27, 2020']
         df.to_csv(os.path.join(self._path, self._filename), index=False)
+        latest_df.to_csv(os.path.join(
+            self._path, 'latest_' + self._filename), index=False)
 
     def contains_tag(self, tag, result_set):
         return True if tag in [tag.name for tag in result_set.find_all()] else False
